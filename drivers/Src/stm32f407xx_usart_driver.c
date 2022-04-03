@@ -260,17 +260,19 @@ void USART_SendData(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Le
 
 void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len){
 
-	for(uint32_t i = 0 ; i < Len; i++){
-	while(USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_FLAG_RXNE) );
+for(uint32_t i = 0 ; i < Len; i++)
+ {
+	while(!USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_FLAG_RXNE) );
 
-	if(pUSARTHandle->USART_Config.USART_WordLength == USART_WORDLEN_9BITS){
+	if(pUSARTHandle->USART_Config.USART_WordLength == USART_WORDLEN_9BITS)
+	{
+		if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE)
+		{
 
-	if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE){
-
-	*((uint16_t*) pRxBuffer) = (pUSARTHandle->pUSARTx->DR  & (uint16_t)0x1FF);
-	 pRxBuffer ++ ;
-	 pRxBuffer ++ ;
-	}
+		*((uint16_t*) pRxBuffer) = (pUSARTHandle->pUSARTx->DR  & (uint16_t)0x01FF);
+		 pRxBuffer ++ ;
+		 pRxBuffer ++ ;
+		}
 	else{
 		 *pRxBuffer = (pUSARTHandle->pUSARTx->DR  & (uint8_t)0xFF);
 		  pRxBuffer ++ ;
@@ -278,7 +280,7 @@ void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_
 	}
 	else{
 	 if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE){
-		 *pRxBuffer = pUSARTHandle->pUSARTx->DR ;
+		 *pRxBuffer = (uint8_t) (pUSARTHandle->pUSARTx->DR & (uint8_t)0xFF);
 	}
 	 else{
 	 *pRxBuffer = ((uint8_t)pUSARTHandle->pUSARTx->DR & (0x7F)) ;

@@ -24,16 +24,14 @@
 #include "stm32f407xx_gpio_driver.h"
 #include "stm32f407xx_usart_driver.h"
 
-char msg[1024] = "UART Tx testing...\n\r";
-
 USART_Handle_t usart2_handle;
 
 void USART2_Init(void)
 {
 	usart2_handle.pUSARTx = USART2;
-	usart2_handle.USART_Config.USART_Baud = USART_STD_BAUD_921600;
+	usart2_handle.USART_Config.USART_Baud = USART_STD_BAUD_9600;
 	usart2_handle.USART_Config.USART_HWFlowControl = USART_HW_FLOW_CTRL_NONE;
-	usart2_handle.USART_Config.USART_Mode = USART_MODE_ONLY_TX;
+	usart2_handle.USART_Config.USART_Mode = USART_MODE_ONLY_RX;
 	usart2_handle.USART_Config.USART_NoOfStopBits = USART_STOPBITS_1;
 	usart2_handle.USART_Config.USART_WordLength = USART_WORDLEN_8BITS;
 	usart2_handle.USART_Config.USART_ParityControl = USART_PARITY_DISABLE;
@@ -68,19 +66,27 @@ void delay(void)
 
 int main(void)
 {
+
+	char msg[100] = "UART Tx testing...\n\r";
+	char rcv[10] = "hellohello";
+
 	USART_PeriClockControl(USART2  ,ENABLE) ;
 	USART2_GPIOInit();
 
 
-	usart2_handle.pUSARTx->CR1 |= ( 1 << USART_CR1_OVER8) ;
+//	usart2_handle.pUSARTx->CR1 |= ( 1 << USART_CR1_OVER8) ;
 
     USART2_Init();
 
     USART_PeripheralControl(USART2,ENABLE);
-for (uint8_t i = 0; i < 10; i++) {
+while(1){
 	delay();
 
 	USART_SendData(&usart2_handle,(uint8_t*)msg,strlen(msg));
+
+	USART_ReceiveData(&usart2_handle, (uint8_t*)rcv, strlen(rcv)) ;
+
+	printf("msg : %s\n" , rcv) ;
 
 }
 
