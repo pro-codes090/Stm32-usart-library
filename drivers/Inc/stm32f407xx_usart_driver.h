@@ -27,6 +27,12 @@ typedef struct{
 typedef struct{
 	USART_RegDef_t *pUSARTx;
 	USART_Config_t USART_Config ;
+	uint8_t *pTxBuffer;
+	uint8_t *pRxBuffer;
+	uint32_t TxLen;
+	uint32_t RxLen;
+	uint8_t TxBusyState;
+	uint8_t RxBusyState;
 }USART_Handle_t;
 
 // Possible USART Mode
@@ -83,17 +89,23 @@ typedef struct{
 
 /*USART possible flag name mcros */
 
-#define USART_FLAG_CTS	(1 << 9)
-#define USART_FLAG_LBD	(1 << 8)
-#define USART_FLAG_TXE	(1 << 7)
-#define USART_FLAG_TC	(1 << 6)
-#define USART_FLAG_RXNE	(1 << 5)
-#define USART_FLAG_IDLE	(1 << 4)
-#define USART_FLAG_ORE	(1 << 3)
-#define USART_FLAG_NF	(1 << 2)
-#define USART_FLAG_FE	(1 << 1)
-#define USART_FLAG_PE	(1 << 0)
+#define USART_FLAG_CTS	(1 << USART_SR_CTS)
+#define USART_FLAG_LBD	(1 << USART_SR_LBD)
+#define USART_FLAG_TXE	(1 << USART_SR_TXE)
+#define USART_FLAG_TC	(1 << USART_SR_TC)
+#define USART_FLAG_RXNE	(1 << USART_SR_RXNE)
+#define USART_FLAG_IDLE	(1 << USART_SR_IDLE)
+#define USART_FLAG_ORE	(1 << USART_SR_ORE)
+#define USART_FLAG_NF	(1 << USART_SR_NF)
+#define USART_FLAG_FE	(1 << USART_SR_FE)
+#define USART_FLAG_PE	(1 << USART_SR_PE)
 
+/*
+ * Application states
+ */
+#define USART_BUSY_IN_RX 1
+#define USART_BUSY_IN_TX 2
+#define USART_READY 0
 
 uint32_t RCC_GetPCLK1Vlaue(void );
 uint32_t RCC_GetPllClk(void ) ;
@@ -113,6 +125,7 @@ void USART_ReceiveData(USART_Handle_t *pUSARTHandle,uint8_t *pRxBuffer, uint32_t
 
 uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len);
 uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
+void USART_IRQHandling(USART_Handle_t *pUSARTHandle) ;
 
 void USART_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi) ;
 void USART_IRQPrioriyConfig(uint8_t IRQNumber, uint8_t IRQPriority) ;

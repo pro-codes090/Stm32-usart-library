@@ -31,7 +31,7 @@ void USART2_Init(void)
 	usart2_handle.pUSARTx = USART2;
 	usart2_handle.USART_Config.USART_Baud = USART_STD_BAUD_9600;
 	usart2_handle.USART_Config.USART_HWFlowControl = USART_HW_FLOW_CTRL_NONE;
-	usart2_handle.USART_Config.USART_Mode = USART_MODE_ONLY_RX;
+	usart2_handle.USART_Config.USART_Mode = USART_MODE_ONLY_TX;
 	usart2_handle.USART_Config.USART_NoOfStopBits = USART_STOPBITS_1;
 	usart2_handle.USART_Config.USART_WordLength = USART_WORDLEN_8BITS;
 	usart2_handle.USART_Config.USART_ParityControl = USART_PARITY_DISABLE;
@@ -79,17 +79,20 @@ int main(void)
     USART2_Init();
 
     USART_PeripheralControl(USART2,ENABLE);
+    USART_IRQInterruptConfig(38, ENABLE) ;
 while(1){
 	delay();
 
-	USART_SendData(&usart2_handle,(uint8_t*)msg,strlen(msg));
-
-	USART_ReceiveData(&usart2_handle, (uint8_t*)rcv, strlen(rcv)) ;
-
-	printf("msg : %s\n" , rcv) ;
+	USART_SendDataIT (&usart2_handle,(uint8_t*)msg,strlen(msg));
 
 }
-
 	return 0;
 }
+
+void USART2_IRQHandler(){
+USART_IRQHandling(&usart2_handle) ;
+}
+
+
+
 
