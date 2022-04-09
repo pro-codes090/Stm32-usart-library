@@ -7,6 +7,8 @@
 
 
 #include "stm32f407xx_usart_driver.h"
+#include <stdarg.h>
+
 
 uint32_t RCC_GetPllClk(void ){
 	return 0 ;
@@ -87,7 +89,7 @@ void USART_DeInit(USART_RegDef_t *pUSARTx){
  }
 }
 
-uint8_t USART_GetFlagStatus(USART_RegDef_t *pUSARTx , uint8_t StatusFlagName) {
+uint8_t USART_GetFlagStatus(USART_RegDef_t *pUSARTx , uint16_t StatusFlagName) {
 	if ((pUSARTx->SR & (StatusFlagName))) {
 		return FLAG_SET ;
 	}
@@ -290,6 +292,88 @@ for(uint32_t i = 0 ; i < Len; i++)
   }
  }
 }
+
+void USART_SendString(USART_Handle_t *pUSARTHandle, char data[]){
+//	printf("length is %d \n" , strlen(data)) ;
+	USART_SendData(pUSARTHandle, (uint8_t*)data, strlen(data)) ;
+}
+
+
+void  USART_printf(USART_Handle_t *pUSART_Handle, char* format,...)
+{
+    char *traverse;
+    unsigned int i;
+    char *s;
+    uint32_t j = 0 ;
+    printf("length of input is %d \n",strlen(format) ) ;
+
+    //Module 1: Initializing Myprintf's arguments
+    va_list arg;
+    va_start(arg, format);
+
+    for(traverse = format; j <= strlen(format) ; traverse++)
+    {
+        while( ( *traverse != '%' ) && (j != strlen(format) ))
+        {
+            USART_SendData(pUSART_Handle, traverse, 1) ;
+            traverse++;
+            j++ ;
+        }
+
+        traverse++;
+        j++ ;
+        //Module 2: Fetching and executing arguments
+        switch(*traverse)
+        {
+            case 'c' : i = va_arg(arg,int);     //Fetch char argument
+            			USART_SendData(pUSART_Handle, (uint8_t*)&i, 1) ;
+                        break;
+
+            case 'd' : i = va_arg(arg,int);         //Fetch Decimal/Integer argument
+                        if(i<0)
+                        {
+                            i = -i;
+                            USART_SendData(pUSART_Handle, (uint8_t*)"-", 1) ;
+                        }
+                       USART_SendString(pUSART_Handle, convert(i,10));
+                        break;
+
+            case 'o': i = va_arg(arg,unsigned int); //Fetch Octal representation
+            			USART_SendString(pUSART_Handle, convert(i,8));
+                        break;
+
+            case 's': s = va_arg(arg,char *);       //Fetch string
+            			USART_SendString(pUSART_Handle, s);
+                        break;
+
+            case 'x': i = va_arg(arg,unsigned int); //Fetch Hexadecimal representation
+            			USART_SendString(pUSART_Handle, convert(i,16));
+                        break;
+        }
+    }
+
+    //Module 3: Closing argument list to necessary clean-up
+    va_end(arg);
+}
+
+char *convert(unsigned int num, int base)
+{
+    static char Representation[]= "0123456789ABCDEF";
+    static char buffer[50];
+    char *ptr;
+
+    ptr = &buffer[49];
+    *ptr = '\0';
+
+    do
+    {
+        *--ptr = Representation[num%base];
+        num /= base;
+    }while(num != 0);
+
+    return(ptr);
+}
+
 uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len){
 
 	uint8_t txstate = pUSARTHandle->RxBusyState ;
@@ -385,35 +469,35 @@ void USART_IRQHandling(USART_Handle_t *pUSARTHandle)
 	 //Implement the code to check the state of TCEIE bit
 	temp2 = pUSARTHandle->pUSARTx->CR1 & ( 1 << USART_CR1_TCIE);
 
-	if(temp1 && temp2 )
+if(temp1 && temp2 )
+{
+	//this interrupt is because of TC
+
+	//close transmission and call application callback if TxLen is zero
+	if ( pUSARTHandle->TxBusyState == USART_BUSY_IN_TX)
 	{
-		//this interrupt is because of TC
-
-		//close transmission and call application callback if TxLen is zero
-		if ( pUSARTHandle->TxBusyState == USART_BUSY_IN_TX)
+		//Check the TxLen . If it is zero then close the data transmission
+		if (pUSARTHandle->TxLen <= 0)
 		{
-			//Check the TxLen . If it is zero then close the data transmission
-			if (pUSARTHandle->TxLen <= 0)
-			{
-				//Implement the code to clear the TC flag
-				pUSARTHandle->pUSARTx->SR &= ~( 1 << USART_SR_TC);
+			//Implement the code to clear the TC flag
+			pUSARTHandle->pUSARTx->SR &= ~( 1 << USART_SR_TC);
 
-				//Implement the code to clear the TCIE control bit
-				pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_TCIE);
-				//Reset the application state
-				pUSARTHandle->TxBusyState = USART_READY;
+			//Implement the code to clear the TCIE control bit
+			pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_TCIE);
+			//Reset the application state
+			pUSARTHandle->TxBusyState = USART_READY;
 
-				//Reset Buffer address to NULL
-				pUSARTHandle->pTxBuffer = NULL ;
+			//Reset Buffer address to NULL
+			pUSARTHandle->pTxBuffer = NULL ;
 
-				//Reset the length to zero
-				pUSARTHandle->TxLen = 0 ;
+			//Reset the length to zero
+			pUSARTHandle->TxLen = 0 ;
 
-				//Call the applicaton call back with event USART_EVENT_TX_CMPLT
+			//Call the applicaton call back with event USART_EVENT_TX_CMPLT
 //				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_TX_CMPLT);
-			}
 		}
 	}
+}
 
 /*************************Check for TXE flag ********************************************/
 

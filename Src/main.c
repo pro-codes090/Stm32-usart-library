@@ -67,9 +67,6 @@ void delay(void)
 int main(void)
 {
 
-	char msg[100] = "UART Tx testing...\n\r";
-	char rcv[10] = "hellohello";
-
 	USART_PeriClockControl(USART2  ,ENABLE) ;
 	USART2_GPIOInit();
 
@@ -79,20 +76,36 @@ int main(void)
     USART2_Init();
 
     USART_PeripheralControl(USART2,ENABLE);
-    USART_IRQInterruptConfig(38, ENABLE) ;
-while(1){
+//    USART_IRQInterruptConfig(38, ENABLE) ;
+
 	delay();
 
-	USART_SendDataIT (&usart2_handle,(uint8_t*)msg,strlen(msg));
 
-}
+
+	USART_printf(&usart2_handle, "this is int %d \n",0) ;
+	USART_printf(&usart2_handle, "this is int %d \n",200000) ;
+	USART_printf(&usart2_handle, "this is int %d \n",400000) ;
+	USART_printf(&usart2_handle, "this is int %d \n",800000) ;
+
+	USART_printf(&usart2_handle, "this is string %s \n","this is pratham vora 01") ;
+	USART_printf(&usart2_handle, "this is string %s \n","this is short text") ;
+	USART_printf(&usart2_handle, "this is string %s \n","this is nothing ") ;
+	USART_printf(&usart2_handle, "this is string %s \n","this is very very very very very very long text ") ;
+
+	USART_printf(&usart2_handle, "this is char %c \n",'a') ;
+	USART_printf(&usart2_handle, "this is char %c \n",'b') ;
+	USART_printf(&usart2_handle, "this is char %c \n",'c') ;
+	USART_printf(&usart2_handle, "this is char %c \n",'d') ;
+
+	USART_printf(&usart2_handle, "this is hex %x \n",1024) ;
+	USART_printf(&usart2_handle, "this is hex %x \n",2048) ;
+	USART_printf(&usart2_handle, "this is hex %x \n",4096) ;
+	USART_printf(&usart2_handle, "this is hex %x \n",8192) ;
+
+
 	return 0;
 }
 
 void USART2_IRQHandler(){
 USART_IRQHandling(&usart2_handle) ;
 }
-
-
-
-
