@@ -101,6 +101,16 @@ typedef struct{
 #define USART_FLAG_FE	(1 << USART_SR_FE)
 #define USART_FLAG_PE	(1 << USART_SR_PE)
 
+/* Application callback events */
+#define USART_ERREVENT_ORE    0
+#define USART_ERREVENT_NE     1
+#define USART_ERREVENT_FE     2
+#define USART_EVENT_IDLE      3
+#define USART_EVENT_CTS       4
+#define USART_EVENT_RX_CMPLT  5
+#define USART_EVENT_TX_CMPLT  6
+#define USART_EVENT_ORE		  7
+
 /*
  * Application states
  */

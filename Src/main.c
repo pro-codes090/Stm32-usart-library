@@ -80,12 +80,12 @@ int main(void)
 
 	delay();
 
+	uint32_t k = 0 ;
 
-
-	USART_printf(&usart2_handle, "this is int %d \n",0) ;
-	USART_printf(&usart2_handle, "this is int %d \n",200000) ;
-	USART_printf(&usart2_handle, "this is int %d \n",400000) ;
-	USART_printf(&usart2_handle, "this is int %d \n",800000) ;
+	USART_printf(&usart2_handle, "this is int %d \n",k) ;
+	USART_printf(&usart2_handle, "this is int %d \n",(k+=200000)) ;
+	USART_printf(&usart2_handle, "this is int %d \n",(k+=200000)) ;
+	USART_printf(&usart2_handle, "this is int %d \n",(k+=200000)) ;
 
 	USART_printf(&usart2_handle, "this is string %s \n","this is pratham vora 01") ;
 	USART_printf(&usart2_handle, "this is string %s \n","this is short text") ;

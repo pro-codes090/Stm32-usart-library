@@ -455,6 +455,10 @@ void USART_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 
 }
 
+__attribute__((weak))void USART_ApplicationEventCallback(USART_Handle_t *pUSARTHandle,uint8_t AppEv){
+
+}
+
 void USART_IRQHandling(USART_Handle_t *pUSARTHandle)
 {
 
@@ -494,7 +498,7 @@ if(temp1 && temp2 )
 			pUSARTHandle->TxLen = 0 ;
 
 			//Call the applicaton call back with event USART_EVENT_TX_CMPLT
-//				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_TX_CMPLT);
+				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_TX_CMPLT);
 		}
 	}
 }
@@ -652,7 +656,7 @@ if(temp1 && temp2 )
 				//disable the rxne
 				pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_RXNEIE );
 				pUSARTHandle->RxBusyState = USART_READY;
-//				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_RX_CMPLT);
+				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_RX_CMPLT);
 			}
 		}
 	}
@@ -670,14 +674,13 @@ if(temp1 && temp2 )
 	//Implement the code to check the state of CTSIE bit in CR3 (This bit is not available for UART4 & UART5.)
 	temp3 = pUSARTHandle->pUSARTx->CR3 & ( 1 << USART_CR3_CTSIE);
 
-
 	if(temp1  && temp2 )
 	{
 		//Implement the code to clear the CTS flag in SR
 		USART_ClearFlag(pUSARTHandle->pUSARTx, USART_FLAG_CTS) ;
 
 		//this interrupt is because of cts
-//		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_CTS);
+		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_CTS);
 	}
 
 /*************************Check for IDLE detection flag ********************************************/
@@ -694,7 +697,7 @@ if(temp1 && temp2 )
 		//Implement the code to clear the IDLE flag. Refer to the RM to understand the clear sequence
 
 		//this interrupt is because of idle
-//		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_IDLE);
+		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_IDLE);
 	}
 
 /*************************Check for Overrun detection flag ********************************************/
@@ -711,7 +714,7 @@ if(temp1 && temp2 )
 		//Need not to clear the ORE flag here, instead give an api for the application to clear the ORE flag .
 
 		//this interrupt is because of Overrun error
-//		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_ORE);
+		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_ORE);
 	}
 
 
@@ -734,7 +737,7 @@ if(temp1 && temp2 )
 				is detected. It is cleared by a software sequence (an read to the USART_SR register
 				followed by a read to the USART_DR register).
 			*/
-//			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_FE);
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_FE);
 		}
 
 		if(temp1 & ( 1 << USART_SR_NF) )
@@ -744,12 +747,12 @@ if(temp1 && temp2 )
 				software sequence (an read to the USART_SR register followed by a read to the
 				USART_DR register).
 			*/
-//			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_NE);
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_NE);
 		}
 
 		if(temp1 & ( 1 << USART_SR_ORE) )
 		{
-//			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_ORE);
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERREVENT_ORE);
 		}
 	}
 
